@@ -1,29 +1,42 @@
 package br.com.caelum.ingresso.controller;
 
-import br.com.caelum.ingresso.dao.FilmeDao;
-import br.com.caelum.ingresso.model.Filme;
+import java.util.List;
+import java.util.Optional;
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.Valid;
-import java.util.Optional;
+import br.com.caelum.ingresso.dao.FilmeDao;
+import br.com.caelum.ingresso.dao.SessaoDao;
+import br.com.caelum.ingresso.model.Filme;
+import br.com.caelum.ingresso.model.Sessao;
 
 /**
  * Created by nando on 03/03/17.
  */
 @Controller
 public class FilmeController {
+	
+	@Autowired
+	private SessaoDao sessaoDao;
 
 
     @Autowired
     private FilmeDao filmeDao;
 
 
-    @GetMapping({"/admin/filme", "/admin/filme/{id}"})
+    @SuppressWarnings("static-access")
+	@GetMapping({"/admin/filme", "/admin/filme/{id}"})
     public ModelAndView form(@PathVariable("id") Optional<Integer> id, Filme filme){
 
         ModelAndView modelAndView = new ModelAndView("filme/filme");
@@ -37,7 +50,19 @@ public class FilmeController {
         return modelAndView;
     }
 
-
+    @GetMapping("/filme/{id}/detalhe")
+    public ModelAndView detalhes(@PathVariable("id") Integer id) {
+    	ModelAndView modelAndView = new ModelAndView("/filme/detalhe");
+    	
+    	Filme filme = FilmeDao.findOne(id);
+    	List<Sessao> sessoes = sessaoDao.buscaSessoesDoFilme(filme);
+    	
+    	modelAndView.addObject("sessoes",sessoes);
+    	
+    	return modelAndView;
+    }
+    
+    
     @PostMapping("/admin/filme")
     @Transactional
     public ModelAndView salva(@Valid Filme filme, BindingResult result){
@@ -72,4 +97,25 @@ public class FilmeController {
         filmeDao.delete(id);
     }
 
+    
+   @GetMapping("") 
+   public ModelAndView emCartaz() {
+	   ModelAndView mv = new ModelAndView("filme/em-cartaz");
+	  mv.addObject("filmes",filmeDao.findAll());
+	   
+	return mv;
+	
+	
+	
+}
+
+
+public SessaoDao getSessaoDao() {
+	return sessaoDao;
+}
+
+
+public void setSessaoDao(SessaoDao sessaoDao) {
+	this.sessaoDao = sessaoDao;
+}
 }

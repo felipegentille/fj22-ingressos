@@ -1,6 +1,8 @@
 package br.com.caelum.ingresso.dao;
 
 import br.com.caelum.ingresso.model.Filme;
+import br.com.caelum.ingresso.model.Sessao;
+
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -14,10 +16,10 @@ import java.util.List;
 public class FilmeDao {
 
     @PersistenceContext
-    private EntityManager manager;
+    private static EntityManager manager;
 
 
-    public Filme findOne(Integer id) {
+    public static Filme findOne(Integer id) {
         return manager.find(Filme.class, id);
     }
 
@@ -32,4 +34,9 @@ public class FilmeDao {
     public void delete(Integer id) {
         manager.remove(findOne(id));
     }
+
+	public void save(Sessao sessao) {
+		// TODO Auto-generated method stub
+		
+	}
 }
